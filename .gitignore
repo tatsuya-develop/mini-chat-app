@@ -26,7 +26,7 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
+/app/assets/javascripts/*
 !/app/assets/javascripts/.keep
-/app/assets/javascripts
 
 /frontend/node_modules/*
