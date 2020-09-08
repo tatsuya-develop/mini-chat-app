@@ -45,11 +45,6 @@ export default {
     // 選択されたチャットグループのIDに更新
     onSelectChatGroup: function (id) {
       this._selected_id = id;
-      const elements = document.getElementsByClassName('groupName');
-      Array.prototype.forEach.call(elements, function(element) {
-        element.style.background = 'gray';
-      });
-      event.target.parentNode.style.background = 'red';
     },
     // チャットグループの作成
     createChatGroup: function () {
@@ -61,6 +56,7 @@ export default {
       axios.post(Const.API_URL + 'chat_groups', params)
         .then((response) => {
           this._chat_groups.push(response.data);
+          this.onSelectChatGroup(response.data.id);
         })
         .catch((error) => {
           alert(Message.ERROR.CREATE);
