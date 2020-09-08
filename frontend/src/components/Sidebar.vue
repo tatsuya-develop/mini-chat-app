@@ -1,21 +1,12 @@
 <template>
   <div class="sidebar">
-    <button class="addButton">+</button>
+    <button class="addButton" v-on:click="createChatGroup()">+</button>
     <div class="chatGroupList">
-      <div class="chatGroup">
+      <div class="chatGroup" v-for="(chat_group, index) in _chat_groups" :key='index'>
         <div class="groupName">
-          チャットグループ名1
-        </div>
-        <div class="unreadBadge">2</div>
-      </div>
-      <div class="chatGroup">
-        <div class="groupName">
-          チャットグループ名2
-        </div>
-      </div>
-      <div class="chatGroup">
-        <div class="groupName">
-          チャットグループ名3
+          <span v-on:click="onSelectChatGroup(chat_group.id)" v-bind:value="selected_id">
+            {{ chat_group.name }}
+          </span>
         </div>
       </div>
     </div>
@@ -23,8 +14,60 @@
 </template>
 
 <script>
+import axios from 'axios';
+import Const from '../config/const.js';
+import Message from '../config/message.js';
+
 export default {
-  
+  props: [
+    'chat_groups',
+    'selected_id',
+  ],
+  computed: {
+    _chat_groups: {
+      get: function() {
+        return this.chat_groups;
+      },
+      set: function(value) {
+        this.$emit('update:chat_groups', value);
+      }
+    },
+    _selected_id: {
+      get: function() {
+        return this.selected_id;
+      },
+      set: function(value) {
+        this.$emit('update:selected_id', value);
+      }
+    }
+  },
+  methods: {
+    // 選択されたチャットグループのIDに更新
+    onSelectChatGroup: function (id) {
+      this._selected_id = id;
+      const elements = document.getElementsByClassName('groupName');
+      Array.prototype.forEach.call(elements, function(element) {
+        element.style.background = 'gray';
+      });
+      event.target.parentNode.style.background = 'red';
+    },
+    // チャットグループの作成
+    createChatGroup: function () {
+      const params = {
+        chat_group: {
+          name: Const.NEW_CHAT_GROUP,
+        }
+      };
+      axios.post(Const.API_URL + 'chat_groups', params)
+        .then((response) => {
+          this._chat_groups.push(response.data);
+        })
+        .catch((error) => {
+          alert(Message.ERROR.CREATE);
+          console.error(error);
+        });
+    }
+  }
 }
 </script>
 
@@ -61,19 +104,8 @@ export default {
   width: 80%;
 }
 
-.unreadBadge {
-  background: red;
-  color: white;
-  border-radius: 50px;
-  width: 40px;
-  height: 20px;
-  font-size: 14px;
-  text-align: center;
-  margin-right: 5px;
-}
-
-.unread {
-  padding-left: 1rem;
+.groupName > span {
+  cursor: pointer;
 }
 
 </style>
