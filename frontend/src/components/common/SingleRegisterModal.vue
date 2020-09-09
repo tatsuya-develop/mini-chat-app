@@ -23,18 +23,24 @@ import Const from '../../config/const.js';
 
 export default {
   props: [
-    'name',           // String
-    'title',          // String
-    'input_text',     // String
-    'error_message',  // String
-    'hide',           // Method
-    'parentRegister', // Method
+    'name',               // String
+    'title',              // String
+    'input_text',         // String
+    'error_message',      // String
+    'hide',               // Method
+    'parentRegister',     // Method
+    'resetErrorMessage',  // Method
   ],
   data () {
     return {
       button_register: Const.REGISTER,
       button_cancel: Const.CANCEL,
     };
+  },
+  watch: {
+    input_text: function() {
+      this.resetErrorMessage();
+    },
   },
   computed: {
     _input_text: {
@@ -47,17 +53,16 @@ export default {
     },
   },
   methods: {
-    register: function () {
+    register: function() {
       this.parentRegister();
     },
-    cancel: function () {
+    cancel: function() {
       this._input_text = '';
       this.hide(this.name);
     },
   }
 }
 </script>
-
 
 <style lang="css" scoped>
 .modal-header, .modal-body {
@@ -77,6 +82,11 @@ input {
   width: 100%;
   height: 30px;
   font-size: 18px;
+}
+
+.error-area > span {
+  margin: 0 1rem;
+  color: red;
 }
 
 .button-area {

@@ -17,6 +17,7 @@
       :error_message="frontend_error_message"
       :hide="hide" 
       :parentRegister="register"
+      :resetErrorMessage="resetErrorMessage"
       @update:input_text="input_text = $event"
     ></single-register-modal>
     <ok-modal 
@@ -73,42 +74,49 @@ export default {
   },
   methods: {
     // 選択されたチャットグループのIDに更新
-    onSelectChatGroup: function (id) {
+    onSelectChatGroup: function(id) {
       this._selected_id = id;
     },
     // チャットグループの作成
-    createChatGroup: function () {
+    createChatGroup: function() {
+      // 未入力であるかをチェック
       if (!this.input_text) {
-        // this.frontend_error_message = Message.FRONTEND_ERROR.NO_INPUT;
-        // return false;
+        this.frontend_error_message = Message.FRONTEND_ERROR.NO_INPUT;
+        return false;
       }
+      // パラメータ設定
       const params = {
         chat_group: {
           name: this.input_text,
         }
       };
+      // チャットグループの登録
       axios.post(Const.API_URL + 'chat_groups', params)
         .then((response) => {
+          // チャットグループリストに追加したチャットグループを追加し、選択
           this._chat_groups.push(response.data);
           this.onSelectChatGroup(response.data.id);
+          // 入力値の初期化と、入力モーダルを閉じる
           this.input_text = '';
           this.hide(this.register_modal_name);
+          return true;
         })
         .catch((error) => {
           this.show(this.error_modal_name);
           console.error(error);
+          return false;
         });
     },
     // モーダルオープン時の処理
-    show: function (target_modal_name) {
+    show: function(target_modal_name) {
       this.$modal.show(target_modal_name);
     },
     // モーダルクローズ時の処理
-    hide: function (target_modal_name) {
+    hide: function(target_modal_name) {
       this.$modal.hide(target_modal_name);
     },
     // モーダルアクション時の処理
-    register: function (name) {
+    register: function(name) {
       const is_result = this.createChatGroup(name);
       if (is_result) {
         this.hide(this.register_modal_name);
@@ -116,6 +124,10 @@ export default {
       }
       return false;
     },
+    // front_error_message のリセット
+    resetErrorMessage: function() {
+      this.frontend_error_message = '';
+    }
   }
 }
 </script>
