@@ -12,13 +12,10 @@ module Api
       end
       
       def create
-        # @chat_group = ChatGroup.create!(chat_group_params)
-        # render json: @chat_group
         @chat_group = ChatGroup.new(chat_group_params)
         if @chat_group.save
           render json: @chat_group
         else
-          # binding.pry
           render response_internal_server_error()
         end
       end
