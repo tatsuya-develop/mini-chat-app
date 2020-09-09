@@ -21,7 +21,7 @@ import Const from './config/const.js';
 export default {
   components: {
     Sidebar,
-    ChatContainer
+    ChatContainer,
   },
   data() {
     return {
@@ -60,6 +60,10 @@ export default {
 </script>
 
 <style lang="css">
+* {
+  color: black;
+}
+
 body {
   background:linear-gradient(90deg,gray 0%,gray 20%,white 20%,white 100%);
   min-width: 1280px;

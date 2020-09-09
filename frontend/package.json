@@ -10,7 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "vue": "^2.6.12"
+    "vue": "^2.6.12",
+    "vue-js-modal": "^2.0.0-rc.6"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",

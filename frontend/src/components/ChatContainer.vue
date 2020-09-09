@@ -39,7 +39,7 @@ export default {
 }
 </script>
 
-<style lang="css">
+<style lang="css" scoped>
 .chatContainer {
   width: 80%;
   padding: 1em;

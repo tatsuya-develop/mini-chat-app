@@ -1,6 +1,6 @@
 <template>
   <div class="sidebar">
-    <button class="addButton" v-on:click="createChatGroup()">+</button>
+    <button class="addButton" v-on:click="show(register_modal_name)">+</button>
     <div class="chatGroupList">
       <div class="chatGroup" v-for="(chat_group, index) in _chat_groups" :key='index'>
         <div class="groupName">
@@ -10,6 +10,20 @@
         </div>
       </div>
     </div>
+    <single-register-modal 
+      :name="register_modal_name" 
+      :title="register_modal_title"
+      :input_text="input_text"
+      :error_message="frontend_error_message"
+      :hide="hide" 
+      :parentRegister="register"
+      @update:input_text="input_text = $event"
+    ></single-register-modal>
+    <ok-modal 
+      :name="error_modal_name" 
+      :hide="hide" 
+      :message="backend_error_message"
+    ></ok-modal>
   </div>
 </template>
 
@@ -17,12 +31,28 @@
 import axios from 'axios';
 import Const from '../config/const.js';
 import Message from '../config/message.js';
+import SingleRegisterModal from './common/SingleRegisterModal.vue'
+import OkModal from './common/OkModal.vue'
 
 export default {
+  components: {
+    SingleRegisterModal,
+    OkModal,
+  },
   props: [
-    'chat_groups',
-    'selected_id',
+    'chat_groups',  // Array
+    'selected_id',  // Integer
   ],
+  data() {
+    return {
+      register_modal_name: Const.REGISTER_CHAT_GROUP_MODAL_NAME,
+      register_modal_title: Const.REGISTER_CHAT_GROUP_MODAL_TITLE,
+      error_modal_name: Const.ERROR_MODAL_NAME,
+      backend_error_message: Message.BACKEND_ERROR.CREATE,
+      frontend_error_message: '',
+      input_text: '',
+    };
+  },
   computed: {
     _chat_groups: {
       get: function() {
@@ -48,30 +78,52 @@ export default {
     },
     // チャットグループの作成
     createChatGroup: function () {
+      if (!this.input_text) {
+        // this.frontend_error_message = Message.FRONTEND_ERROR.NO_INPUT;
+        // return false;
+      }
       const params = {
         chat_group: {
-          name: Const.NEW_CHAT_GROUP,
+          name: this.input_text,
         }
       };
       axios.post(Const.API_URL + 'chat_groups', params)
         .then((response) => {
           this._chat_groups.push(response.data);
           this.onSelectChatGroup(response.data.id);
+          this.input_text = '';
+          this.hide(this.register_modal_name);
         })
         .catch((error) => {
-          alert(Message.ERROR.CREATE);
+          this.show(this.error_modal_name);
           console.error(error);
         });
-    }
+    },
+    // モーダルオープン時の処理
+    show: function (target_modal_name) {
+      this.$modal.show(target_modal_name);
+    },
+    // モーダルクローズ時の処理
+    hide: function (target_modal_name) {
+      this.$modal.hide(target_modal_name);
+    },
+    // モーダルアクション時の処理
+    register: function (name) {
+      const is_result = this.createChatGroup(name);
+      if (is_result) {
+        this.hide(this.register_modal_name);
+        return true;
+      }
+      return false;
+    },
   }
 }
 </script>
 
-<style lang="css">
+<style lang="css" scoped>
 .sidebar {
   width: 19%;
   padding: 1em;
-  color: white;
 }
 
 .addButton {
@@ -101,6 +153,7 @@ export default {
 }
 
 .groupName > span {
+  color: white;
   cursor: pointer;
 }
 
