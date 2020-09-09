@@ -58,6 +58,7 @@ export default {
     },
     cancel: function() {
       this._input_text = '';
+      this.resetErrorMessage();
       this.hide(this.name);
     },
   }
