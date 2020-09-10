@@ -2,7 +2,7 @@
   <div class="sidebar">
     <button class="addButton" v-on:click="show(register_modal_name)">+</button>
     <div class="chatGroupList">
-      <div class="chatGroup" v-for="(chat_group, index) in _chat_groups" :key='index'>
+      <div class="chatGroup" v-for="chat_group in _chat_groups" :key="chat_group.id">
         <div class="groupName">
           <span v-on:click="onSelectChatGroup(chat_group.id)" v-bind:value="selected_id">
             {{ chat_group.name }}
