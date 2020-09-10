@@ -1,6 +1,3 @@
-require "#{Rails.root}/app/controllers/application_controller.rb"
-require "pry"
-
 module Api
   module V1
     class ChatGroupsController < ApplicationController
@@ -16,7 +13,7 @@ module Api
         if @chat_group.save
           render json: @chat_group
         else
-          render response_internal_server_error()
+          render response_internal_server_error(@chat_group.errors)
         end
       end
 
