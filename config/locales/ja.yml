@@ -1,0 +1,7 @@
+ja:
+  activerecord:
+    models:
+      chat_group: チャットグループ
+    attributes:
+      chat_group:
+        name: チャットグループ名

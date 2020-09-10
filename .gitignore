@@ -30,4 +30,3 @@
 !/app/assets/javascripts/.keep
 
 /frontend/node_modules/*
-/frontend/package-lock.json

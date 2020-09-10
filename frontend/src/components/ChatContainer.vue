@@ -1,9 +1,9 @@
 <template>
-  <div class="chatContainer">
+  <div class="chatContainer" v-if="selected_chat_group">
     <div class="chatTop">
       <div class="groupAlia">
         <div class="groupTitle">
-          チャットグループ名
+          {{ selected_chat_group.name }}
         </div>
         <div class="groupEdit link">
           編集
@@ -28,11 +28,18 @@
 
 <script>
 export default {
-  
+  data() {
+    return {
+      chat_group: [],
+    };
+  },
+  props: [
+    'selected_chat_group',
+  ],
 }
 </script>
 
-<style lang="css">
+<style lang="css" scoped>
 .chatContainer {
   width: 80%;
   padding: 1em;
