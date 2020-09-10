@@ -38,4 +38,40 @@ RSpec.describe "ChatGroups", type: :request do
       end
     end
   end
+
+  describe 'PUT #update' do
+    context '登録可能な情報が渡ってきた場合' do
+      it 'チャットグループを更新出来ること' do
+        current_chat_group = create(:chat_group, name: '新しいチャットグループ')
+        updated_chat_group = '新しいチャットグループ_更新後';
+        valid_params = { name: updated_chat_group }
+
+        put api_v1_chat_group_path(current_chat_group.id), params: { chat_group: valid_params }
+        json = JSON.parse(response.body)
+
+        # リクエスト成功を表す200が返ってきたかを確認する。
+        expect(response.status).to eq(200)
+
+        # データが更新されていることを確認
+        expect(json['name']).to eq(updated_chat_group)
+      end
+    end
+
+    context '最大文字数（255文字）ピッタリの場合' do
+      it 'チャットグループを作成出来ること' do
+        current_chat_group = create(:chat_group, name: '新しいチャットグループ')
+        updated_chat_group = 'a' * 255;
+        valid_params = { name: updated_chat_group }
+
+        put api_v1_chat_group_path(current_chat_group.id), params: { chat_group: valid_params }
+        json = JSON.parse(response.body)
+
+        # リクエスト成功を表す200が返ってきたかを確認する。
+        expect(response.status).to eq(200)
+
+        # データが更新されていることを確認
+        expect(json['name']).to eq(updated_chat_group)
+      end
+    end
+  end
 end

@@ -8,6 +8,7 @@
     ></sidebar>
     <chat-container
       :selected_chat_group="selected_chat_group"
+      @update:selected_chat_group="selected_chat_group = $event"
     ></chat-container>
   </div>
 </template>
@@ -29,6 +30,17 @@ export default {
       chat_groups: [],
       selected_id: null,
     };
+  },
+  watch: {
+    selected_chat_group: function(new_chat_group) {
+      this.chat_groups = this.chat_groups.concat().reduce((acc, cur) => {
+        if (cur.id === new_chat_group.id) {
+          cur.name = new_chat_group.name;
+        }
+        acc.push(cur);
+        return acc;
+      }, []);
+    }
   },
   created: function () {
     this.getAllChatGroup();
@@ -66,7 +78,7 @@ export default {
 
 body {
   background:linear-gradient(90deg,gray 0%,gray 20%,white 20%,white 100%);
-  min-width: 1280px;
+  min-width: 1350px;
   min-height: 720px;
 }
 

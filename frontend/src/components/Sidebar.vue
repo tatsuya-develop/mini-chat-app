@@ -10,16 +10,17 @@
         </div>
       </div>
     </div>
-    <single-register-modal 
+    <single-text-box-modal
       :name="register_modal_name" 
       :title="register_modal_title"
       :input_text="input_text"
+      :button_submit="single_text_box_modal_button"
       :error_message="frontend_error_message"
       :hide="hide" 
-      :parentRegister="register"
+      :parentSubmit="register"
       :resetErrorMessage="resetErrorMessage"
       @update:input_text="input_text = $event"
-    ></single-register-modal>
+    ></single-text-box-modal>
     <ok-modal 
       :name="error_modal_name" 
       :hide="hide" 
@@ -32,18 +33,18 @@
 import axios from 'axios';
 import Const from '../config/const.js';
 import Message from '../config/message.js';
-import SingleRegisterModal from './common/SingleRegisterModal.vue'
+import SingleTextBoxModal from './common/SingleTextBoxModal.vue'
 import OkModal from './common/OkModal.vue'
 
 export default {
   components: {
-    SingleRegisterModal,
+    SingleTextBoxModal,
     OkModal,
   },
-  props: [
-    'chat_groups',  // Array
-    'selected_id',  // Integer
-  ],
+  props: {
+    'chat_groups': Array,
+    'selected_id': Number,
+  },
   data() {
     return {
       register_modal_name: Const.REGISTER_CHAT_GROUP_MODAL_NAME,
@@ -52,6 +53,7 @@ export default {
       backend_error_message: Message.BACKEND_ERROR.CREATE,
       frontend_error_message: '',
       input_text: '',
+      single_text_box_modal_button: Const.REGISTER,
     };
   },
   computed: {
@@ -99,12 +101,10 @@ export default {
           // 入力値の初期化と、入力モーダルを閉じる
           this.input_text = '';
           this.hide(this.register_modal_name);
-          return true;
         })
         .catch((error) => {
           this.show(this.error_modal_name);
           console.error(error);
-          return false;
         });
     },
     // モーダルオープン時の処理
@@ -116,13 +116,8 @@ export default {
       this.$modal.hide(target_modal_name);
     },
     // モーダルアクション時の処理
-    register: function(name) {
-      const is_result = this.createChatGroup(name);
-      if (is_result) {
-        this.hide(this.register_modal_name);
-        return true;
-      }
-      return false;
+    register: function() {
+      this.createChatGroup(this.input_text);
     },
     // front_error_message のリセット
     resetErrorMessage: function() {
