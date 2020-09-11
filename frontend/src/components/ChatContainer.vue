@@ -5,7 +5,7 @@
         <div class="groupTitle">
           {{ _selected_chat_group.name }}
         </div>
-        <div class="groupEdit link" v-on:click="show(edit_modal_name)">
+        <div class="groupEdit link" v-on:click="showModal(edit_modal_name)">
           {{ edit_link }}
         </div>
       </div>
@@ -28,7 +28,7 @@
       :title="edit_modal_title"
       :input_text="input_text"
       :error_message="frontend_error_message"
-      :hide="hide" 
+      :hide="hideModal" 
       :button_submit="single_text_box_modal_button"
       :parentSubmit="edit"
       :resetErrorMessage="resetErrorMessage"
@@ -36,7 +36,7 @@
     ></single-text-box-modal>
     <ok-modal 
       :name="error_modal_name" 
-      :hide="hide" 
+      :hide="hideModal" 
       :message="backend_error_message"
     ></ok-modal>
   </div>
@@ -107,16 +107,16 @@ export default {
           this.$modal.hide(this.edit_modal_name);
         })
         .catch((error) => {
-          this.show(this.error_modal_name);
+          this.showModal(this.error_modal_name);
           console.error(error);
         });
     },
     // モーダルオープン時の処理
-    show: function(target_modal_name) {
+    showModal: function(target_modal_name) {
       this.$modal.show(target_modal_name);
     },
     // モーダルクローズ時の処理
-    hide: function(target_modal_name) {
+    hideModal: function(target_modal_name) {
       if (target_modal_name === this.edit_modal_name) {
         this.input_text = this._selected_chat_group.name;
       }

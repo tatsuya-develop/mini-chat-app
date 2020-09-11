@@ -1,6 +1,6 @@
 <template>
   <div class="sidebar">
-    <button class="addButton" v-on:click="show(register_modal_name)">+</button>
+    <button class="addButton" v-on:click="showModal(register_modal_name)">+</button>
     <div class="chatGroupList">
       <div class="chatGroup" v-for="chat_group in _chat_groups" :key="chat_group.id">
         <div class="groupName">
@@ -16,14 +16,14 @@
       :input_text="input_text"
       :button_submit="single_text_box_modal_button"
       :error_message="frontend_error_message"
-      :hide="hide" 
+      :hide="hideModal" 
       :parentSubmit="register"
       :resetErrorMessage="resetErrorMessage"
       @update:input_text="input_text = $event"
     ></single-text-box-modal>
     <ok-modal 
       :name="error_modal_name" 
-      :hide="hide" 
+      :hide="hideModal" 
       :message="backend_error_message"
     ></ok-modal>
   </div>
@@ -100,19 +100,19 @@ export default {
           this.onSelectChatGroup(response.data.id);
           // 入力値の初期化と、入力モーダルを閉じる
           this.input_text = '';
-          this.hide(this.register_modal_name);
+          this.hideModal(this.register_modal_name);
         })
         .catch((error) => {
-          this.show(this.error_modal_name);
+          this.showModal(this.error_modal_name);
           console.error(error);
         });
     },
     // モーダルオープン時の処理
-    show: function(target_modal_name) {
+    showModal: function(target_modal_name) {
       this.$modal.show(target_modal_name);
     },
     // モーダルクローズ時の処理
-    hide: function(target_modal_name) {
+    hideModal: function(target_modal_name) {
       this.$modal.hide(target_modal_name);
     },
     // モーダルアクション時の処理
