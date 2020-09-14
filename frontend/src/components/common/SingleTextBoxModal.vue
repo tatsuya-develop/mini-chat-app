@@ -11,7 +11,7 @@
           <span>{{ error_message }}</span>
         </div>
         <div class="button-area">
-          <button v-on:click="register()">{{ button_register }}</button>
+          <button v-on:click="submit()">{{ button_submit }}</button>
           <button v-on:click="cancel(name)">{{ button_cancel }}</button>
         </div>
       </div>
@@ -22,18 +22,18 @@
 import Const from '../../config/const.js';
 
 export default {
-  props: [
-    'name',               // String
-    'title',              // String
-    'input_text',         // String
-    'error_message',      // String
-    'hide',               // Method
-    'parentRegister',     // Method
-    'resetErrorMessage',  // Method
-  ],
+  props: {
+    'name': String,
+    'title': String,
+    'input_text': String,
+    'error_message': String,
+    'button_submit': String,
+    'hide': Function,
+    'parentSubmit': Function,
+    'resetErrorMessage': Function,
+  },
   data () {
     return {
-      button_register: Const.REGISTER,
       button_cancel: Const.CANCEL,
     };
   },
@@ -53,8 +53,8 @@ export default {
     },
   },
   methods: {
-    register: function() {
-      this.parentRegister();
+    submit: function() {
+      this.parentSubmit();
     },
     cancel: function() {
       this._input_text = '';
