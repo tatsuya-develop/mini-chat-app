@@ -15,7 +15,7 @@ RSpec.describe "ChatGroups", type: :request do
 
   describe 'POST #create' do
     context '登録が成功する場合' do
-      it '更新後の値と200を返すこと' do
+      it '登録後の値と200を返すこと' do
         valid_params = { name: '新しいチャットグループ' }
 
         # データが作成されていることを確認
@@ -27,7 +27,7 @@ RSpec.describe "ChatGroups", type: :request do
     end
 
     context '最大文字数（255文字）ピッタリの値で登録が成功する場合' do
-      it '更新後の値と200を返すこと' do
+      it '登録後の値と200を返すこと' do
         valid_params = { name: 'a' * 255 }
 
         # データが作成されていることを確認
@@ -51,8 +51,8 @@ RSpec.describe "ChatGroups", type: :request do
   end
 
   describe 'PUT #update' do
-    context '登録可能な情報が渡ってきた場合' do
-      it 'チャットグループを更新出来ること' do
+    context '更新が成功する場合' do
+      it '更新後の値と200を返すこと' do
         current_chat_group = create(:chat_group, name: '新しいチャットグループ')
         updated_chat_group = '新しいチャットグループ_更新後';
         valid_params = { name: updated_chat_group }
@@ -68,8 +68,8 @@ RSpec.describe "ChatGroups", type: :request do
       end
     end
 
-    context '最大文字数（255文字）ピッタリの場合' do
-      it 'チャットグループを作成出来ること' do
+    context '最大文字数（255文字）ピッタリの値で更新が成功する場合' do
+      it '更新後の値と200を返すこと' do
         current_chat_group = create(:chat_group, name: '新しいチャットグループ')
         updated_chat_group = 'a' * 255;
         valid_params = { name: updated_chat_group }
