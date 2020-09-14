@@ -15,7 +15,7 @@ module Api
         if @chat_group.save
           render json: @chat_group
         else
-          render response_internal_server_error(@chat_group.errors)
+          response_bad_request(@chat_group.errors)
         end
       end
       
@@ -23,7 +23,7 @@ module Api
         if @chat_group.update(chat_group_params)
           render json: @chat_group
         else
-          render response_internal_server_error(@chat_group.errors)
+          response_bad_request(@chat_group.errors)
         end
       end
 
