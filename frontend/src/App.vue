@@ -65,6 +65,7 @@ export default {
           console.error(error.response.data.message);
         });
     },
+    // 選択中のチャットグループを配列から削除し、選択状態も解除
     removalSelectedChatGroup: function (selected) {
       this.chat_groups = this.chat_groups.concat().filter((chat_group) => {
         return chat_group.id !== selected.id

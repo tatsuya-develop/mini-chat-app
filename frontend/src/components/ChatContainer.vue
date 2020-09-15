@@ -141,6 +141,7 @@ export default {
           console.error(error.response.data);
         });
     },
+    // チャットグループの削除
     deleteChatGroup: function() {
       axios.delete(Const.API_URL + `chat_groups/${this.selected_chat_group.id}`)
         .then((response) => {
