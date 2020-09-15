@@ -1,13 +1,12 @@
 <template>
-    <modal v-bind:name="name" width="400px" height="250px">
+    <modal v-bind:name="name" width="500px" height="200px">
       <div class="modal-body">
-        <div class="message-area">
-          <div class="summary">{{ message }}</div>
-          <div ckass="detail">{{ message_detail }}</div>
+        <div class="input-area">
+          {{ message }}
         </div>
-        <div class=""></div>
         <div class="button-area">
-          <button class="btn-primary" v-on:click="hide(name)">{{ button_ok }}</button>
+          <button class="btn-primary" v-on:click="submit()">{{ button_yes }}</button>
+          <button v-on:click="hide(name)">{{ button_no }}</button>
         </div>
       </div>
     </modal>
@@ -20,11 +19,12 @@ export default {
   props: {
     'name': String,
     'message': String,
-    'message_detail': String,
     'hide': Function,
+    'submit': Function,
   },
   computed: {
-    button_ok: () => Const.OK,
+    button_yes: () => Const.YES,
+    button_no: () => Const.NO,
   },
   methods: {},
 }
@@ -40,19 +40,10 @@ export default {
   border-bottom: 1px solid #ddd;
 }
 
-.message-area, .button-area {
+.input-area, .button-area {
   text-align: center;
   margin: 3rem 0;
-}
-
-.summary {
   font-size: 20px;
-  margin: 1rem 0
-}
-
-.detail {
-  margin: 1rem 0;
-  font-size: 14px;
 }
 
 </style>

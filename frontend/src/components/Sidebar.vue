@@ -4,7 +4,7 @@
     <div class="chatGroupList">
       <div class="chatGroup" v-for="chat_group in _chat_groups" :key="chat_group.id">
         <div class="groupName">
-          <span v-on:click="onSelectChatGroup(chat_group.id)" v-bind:value="selected_id">
+          <span v-on:click="onSelectChatGroup(chat_group)" v-bind:value="selected_id">
             {{ chat_group.name }}
           </span>
         </div>
@@ -25,6 +25,7 @@
       :name="error_modal_name" 
       :hide="hideModal" 
       :message="backend_error_message"
+      :message_detail="backend_error_message_detail"
     ></ok-modal>
   </div>
 </template>
@@ -35,6 +36,7 @@ import Const from '../config/const.js';
 import Message from '../config/message.js';
 import SingleTextBoxModal from './common/SingleTextBoxModal.vue'
 import OkModal from './common/OkModal.vue'
+import Common from '../config/common.js'
 
 export default {
   components: {
@@ -47,13 +49,9 @@ export default {
   },
   data() {
     return {
-      register_modal_name: Const.REGISTER_CHAT_GROUP_MODAL_NAME,
-      register_modal_title: Const.REGISTER_CHAT_GROUP_MODAL_TITLE,
-      error_modal_name: Const.ERROR_MODAL_NAME,
-      backend_error_message: Message.BACKEND_ERROR.CREATE,
       frontend_error_message: '',
       input_text: '',
-      single_text_box_modal_button: Const.REGISTER,
+      backend_error_message_detail: '',
     };
   },
   computed: {
@@ -72,12 +70,17 @@ export default {
       set: function(value) {
         this.$emit('update:selected_id', value);
       }
-    }
+    },
+    register_modal_name: () => Const.REGISTER_CHAT_GROUP_MODAL_NAME,
+    register_modal_title: () => Const.REGISTER_CHAT_GROUP_MODAL_TITLE,
+    error_modal_name: () => Const.SIDEBAR_ERROR_MODAL_NAME,
+    backend_error_message: () => Common.GENERATE_LENTICULAR_BRACKET(Message.BACKEND_ERROR.CREATE),
+    single_text_box_modal_button: () => Const.REGISTER,
   },
   methods: {
     // 選択されたチャットグループのIDに更新
-    onSelectChatGroup: function(id) {
-      this._selected_id = id;
+    onSelectChatGroup: function(chat_group) {
+      this._selected_id = chat_group ? chat_group.id : null;
     },
     // チャットグループの作成
     createChatGroup: function() {
@@ -96,15 +99,17 @@ export default {
       axios.post(Const.API_URL + 'chat_groups', params)
         .then((response) => {
           // チャットグループリストに追加したチャットグループを追加し、選択
-          this._chat_groups.push(response.data);
-          this.onSelectChatGroup(response.data.id);
+          const data = response.data;
+          this._chat_groups.push(data);
+          this.onSelectChatGroup(data);
           // 入力値の初期化と、入力モーダルを閉じる
           this.input_text = '';
           this.hideModal(this.register_modal_name);
         })
         .catch((error) => {
           this.showModal(this.error_modal_name);
-          console.error(error);
+          this.backend_error_message_detail = error.response.data.message;
+          console.error(error.response.data);
         });
     },
     // モーダルオープン時の処理
@@ -129,7 +134,7 @@ export default {
 
 <style lang="css" scoped>
 .sidebar {
-  width: 19%;
+  width: 20%;
   padding: 1em;
 }
 

@@ -8,6 +8,8 @@
     ></sidebar>
     <chat-container
       :selected_chat_group="selected_chat_group"
+      :chat_groups="chat_groups"
+      :removalSelectedChatGroup="removalSelectedChatGroup"
       @update:selected_chat_group="selected_chat_group = $event"
     ></chat-container>
   </div>
@@ -34,7 +36,7 @@ export default {
   watch: {
     selected_chat_group: function(new_chat_group) {
       this.chat_groups = this.chat_groups.concat().reduce((acc, cur) => {
-        if (cur.id === new_chat_group.id) {
+        if (new_chat_group && cur.id === new_chat_group.id) {
           cur.name = new_chat_group.name;
         }
         acc.push(cur);
@@ -42,10 +44,10 @@ export default {
       }, []);
     }
   },
-  created: function () {
+  created: function() {
     this.getAllChatGroup();
   },
-  updated: function () {
+  updated: function() {
     const chat_group = this.chat_groups.filter((item) => {
       return item.id === this.selected_id;
     });
@@ -58,15 +60,18 @@ export default {
         .then((response) => {
           const chat_groups = response.data;
           this.chat_groups = chat_groups;
-
-          if (chat_groups.length > 0) {
-            this.selected_id = chat_groups[0].id;
-          }
         })
         .catch((error) => {
           console.error(error.response.data.message);
         });
-    }
+    },
+    // 選択中のチャットグループを配列から削除し、選択状態も解除
+    removalSelectedChatGroup: function (selected) {
+      this.chat_groups = this.chat_groups.concat().filter((chat_group) => {
+        return chat_group.id !== selected.id
+      });
+      this.selected_chat_group = null;
+    },
   }
 };
 </script>
@@ -76,17 +81,40 @@ export default {
   color: black;
 }
 
-body {
+html {
+  height: 100%;
+  width: 100%;
   background:linear-gradient(90deg,gray 0%,gray 20%,white 20%,white 100%);
-  min-width: 1350px;
-  min-height: 720px;
+}
+
+body {
+  margin: 5px;
+  height: 100%;
+  width: 100%;
 }
 
 .app {
   display: flex;
+  height: 100%;
+  width: 100%;
 }
 
 button {
   cursor: pointer;
+  height: 36px;
+  width: 100px;
+  font-size: 14px;
+}
+
+.btn-primary {
+  background: blue;
+  color: white;
+  border: none;
+}
+
+.btn-healthy {
+  background: green;
+  color: white;
+  border: none;
 }
 </style>

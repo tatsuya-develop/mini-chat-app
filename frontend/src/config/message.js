@@ -7,5 +7,8 @@ export default Object.freeze({
   // フロントエンドのエラーメッセージ
   FRONTEND_ERROR: {
     NO_INPUT: '未入力の項目が存在します',
-  }
+  },
+  DELETE_CONFIRM_MESSAGE: '本当に削除してもよろしいですか？',
+  PLEASE_SELECT_CHAT_GROUP_MESSAGE: 'サイドバーからチャットグループを選択してください。',
+  PLEASE_CREATE_CHAT_GROUP_MESSAGE: 'チャットグループを作成してください。',
 });

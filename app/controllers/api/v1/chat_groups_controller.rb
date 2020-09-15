@@ -3,7 +3,7 @@ module Api
     class ChatGroupsController < ApplicationController
       protect_from_forgery
 
-      before_action :set_target_chat_group, only: %i[update]
+      before_action :set_target_chat_group, only: %i[update destroy]
 
       def index
         @chat_groups = ChatGroup.all
@@ -24,6 +24,14 @@ module Api
           render json: @chat_group
         else
           response_bad_request(@chat_group.errors)
+        end
+      end
+
+      def destroy
+        if @chat_group.destroy
+          render json: @chat_group
+        else
+          response_internal_server_error(@chat_group.errors)
         end
       end
 
