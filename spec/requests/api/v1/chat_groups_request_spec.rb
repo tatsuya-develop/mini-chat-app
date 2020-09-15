@@ -98,4 +98,27 @@ RSpec.describe "ChatGroups", type: :request do
       end
     end
   end
+
+  describe 'DELETE #destroy' do
+    context 'messagesテーブルのレコードが存在せず、削除に成功する場合' do
+      it '削除対象のデータと200を返すこと' do
+        chat_group = create(:chat_group, name: '新しいチャットグループ（削除）')
+        # データが削除されていることを確認
+        expect { delete api_v1_chat_group_path(chat_group.id) }.to change(ChatGroup, :count).by(-1)
+
+        # リクエスト成功を表す200が返ってきたかを確認する。
+        expect(response.status).to eq(200)
+      end
+    end
+
+    context '削除に失敗する場合' do
+      it 'エラーメッセージと500を返すこと' do
+        chat_group = create(:chat_group, name: '新しいチャットグループ（削除）')
+
+        # 生成したチャットグループのIDに +1 し、存在しないIDを引数に追加する。
+        expect { delete api_v1_chat_group_path(chat_group.id + 1) }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+    # TODO: messageテーブルと親子関係になっているため、message機能を実装したときにテストコードを追加する。（messageのレコードが存在する場合）
+  end
 end

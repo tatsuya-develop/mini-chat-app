@@ -1,44 +1,62 @@
 <template>
-  <div class="chatContainer" v-if="_selected_chat_group">
-    <div class="chatTop">
-      <div class="groupAlia">
-        <div class="groupTitle">
-          {{ _selected_chat_group.name }}
+  <div class="chatContainer">
+    <!-- チャットグループ一覧が空、またはチャットグループが未選択の状態の場合 -->
+    <div class="guide-message" v-if="!chat_groups || chat_groups.length === 0">
+      <h2>{{ please_create_chat_group_message }}</h2>
+    </div>
+    <!-- チャットグループ一覧に1件以上存在するが、チャットグループが未選択の状態 -->
+    <div class="guide-message" v-else-if="!_selected_chat_group">
+      <h2>{{ please_select_chat_group_message }}</h2>
+    </div>
+    <!-- チャットグループ一覧に1件以上存在し、チャットグループも選択している状態 -->
+    <div v-else>
+      <div class="chatTop">
+        <div class="groupAlia">
+          <div class="groupTitle">
+            {{ _selected_chat_group.name }}
+          </div>
+          <div class="groupEdit link" v-on:click="showModal(edit_modal_name)">
+            {{ edit_link }}
+          </div>
         </div>
-        <div class="groupEdit link" v-on:click="showModal(edit_modal_name)">
-          {{ edit_link }}
+        <div class="groupDelete link" v-on:click="showModal(delete_modal_name)">
+          {{ delete_link }}
         </div>
       </div>
-      <div class="groupDelete link">
-        {{ delete_link }}
+      <div class="chatMain">
+        <p>メッセージ1</p>
+        <p>メッセージ2</p>
+        <p>メッセージ3</p>
+        <p>メッセージ4</p> 
       </div>
+      <div class="chatBottom">
+        <input type="text" class="inputMessage">
+        <button class="submit btn-healthy">{{ submit_button }}</button>
+      </div>
+      <single-text-box-modal
+        :name="edit_modal_name" 
+        :title="edit_modal_title"
+        :input_text="input_text"
+        :error_message="frontend_error_message"
+        :hide="hideModal" 
+        :button_submit="single_text_box_modal_button"
+        :parentSubmit="edit"
+        :resetErrorMessage="resetErrorMessage"
+        @update:input_text="input_text = $event"
+      ></single-text-box-modal>
+      <ok-modal 
+        :name="error_modal_name" 
+        :hide="hideModal" 
+        :message="backend_error_message"
+        :message_detail="backend_error_message_detail"
+      ></ok-modal>
+      <yes-no-modal
+        :name="delete_modal_name"
+        :hide="hideModal"
+        :message="delete_confirm_message"
+        :submit="deleteChatGroup"
+      ></yes-no-modal>
     </div>
-    <div class="chatMain">
-      <p>メッセージ1</p>
-      <p>メッセージ2</p>
-      <p>メッセージ3</p>
-      <p>メッセージ4</p> 
-    </div>
-    <div class="chatBottom">
-      <input type="text" class="inputMessage">
-      <button>{{ single_text_box_modal_button }}</button>
-    </div>
-    <single-text-box-modal
-      :name="edit_modal_name" 
-      :title="edit_modal_title"
-      :input_text="input_text"
-      :error_message="frontend_error_message"
-      :hide="hideModal" 
-      :button_submit="single_text_box_modal_button"
-      :parentSubmit="edit"
-      :resetErrorMessage="resetErrorMessage"
-      @update:input_text="input_text = $event"
-    ></single-text-box-modal>
-    <ok-modal 
-      :name="error_modal_name" 
-      :hide="hideModal" 
-      :message="backend_error_message"
-    ></ok-modal>
   </div>
 </template>
 
@@ -49,34 +67,33 @@ import Message from '../config/message.js';
 import _ from 'lodash';
 import SingleTextBoxModal from './common/SingleTextBoxModal.vue';
 import OkModal from './common/OkModal.vue';
+import YesNoModal from './common/YesNoModal.vue';
+import Common from '../config/common.js';
 
 export default {
   components: {
     SingleTextBoxModal,
     OkModal,
-  },
-  data() {
-    return {
-      edit_modal_name: Const.EDIT_CHAT_GROUP_MODAL_NAME,
-      edit_modal_title: Const.EDIT_CHAT_GROUP_MODAL_TITLE,
-      error_modal_name: Const.ERROR_MODAL_NAME,
-      backend_error_message: Message.BACKEND_ERROR.UPDATE,
-      frontend_error_message: '',
-      chat_group: [],
-      input_text: '',
-      submit_button: Const.SUBMIT,
-      edit_link: Const.EDIT,
-      delete_link: Const.DELETE,
-      single_text_box_modal_button: Const.UPDATE,
-    };
+    YesNoModal,
   },
   props: {
     'selected_chat_group': Object,
+    'chat_groups': Array,
+    'removalSelectedChatGroup': Function,
   },
   watch: {
-    selected_chat_group: function(current, prev) {
-      this.input_text = current.name;
+    selected_chat_group: function(current) {
+      this.input_text = current ? current.name : '';
     },
+  },
+  data() {
+    return {
+      frontend_error_message: '',
+      chat_group: [],
+      input_text: '',
+      backend_error_message_detail: '',
+      message: '',
+    };
   },
   computed: {
     _selected_chat_group: {
@@ -87,6 +104,18 @@ export default {
         this.$emit('update:selected_chat_group', value);
       }
     },
+    edit_modal_name: () => Const.EDIT_CHAT_GROUP_MODAL_NAME,
+    edit_modal_title: () => Const.EDIT_CHAT_GROUP_MODAL_TITLE,
+    delete_modal_name: () => Const.DELETE_CHAT_GROUP_MODAL_NAME,
+    error_modal_name: () => Const.CHAT_CONTAINER_ERROR_MODAL_NAME,
+    backend_error_message: () => Common.GENERATE_LENTICULAR_BRACKET(Message.BACKEND_ERROR.UPDATE),
+    delete_confirm_message: () => Message.DELETE_CONFIRM_MESSAGE,
+    submit_button: () => Const.SUBMIT,
+    edit_link: () => Const.EDIT,
+    delete_link: () => Const.DELETE,
+    single_text_box_modal_button: () => Const.UPDATE,
+    please_select_chat_group_message: () => Message.PLEASE_SELECT_CHAT_GROUP_MESSAGE,
+    please_create_chat_group_message: () => Message.PLEASE_CREATE_CHAT_GROUP_MESSAGE,
   },
   methods: {
     // チャットグループの更新
@@ -108,7 +137,20 @@ export default {
         })
         .catch((error) => {
           this.showModal(this.error_modal_name);
-          console.error(error);
+          this.backend_error_message_detail = error.response.data.message;
+          console.error(error.response.data);
+        });
+    },
+    deleteChatGroup: function() {
+      axios.delete(Const.API_URL + `chat_groups/${this.selected_chat_group.id}`)
+        .then((response) => {
+          this.removalSelectedChatGroup(response.data);
+          this.$modal.hide(this.delete_modal_name);
+        })
+        .catch((error) => {
+          this.showModal(this.error_modal_name);
+          this.backend_error_message_detail = error.response.data.message;
+          console.error(error.response.data);
         });
     },
     // モーダルオープン時の処理
@@ -138,6 +180,7 @@ export default {
 .chatContainer {
   width: 80%;
   padding: 1em;
+  position: relative;
 }
 
 .link {
@@ -169,19 +212,28 @@ export default {
   margin-left: 1rem;
 }
 
-.chatMain {
-  height: 85vh;
-}
-
 .chatBottom {
   display: flex;
   justify-content: space-between;
+  position: absolute;
+  bottom: 0;
+  width: 95%;
+  margin: 1rem 0;
 }
 
 .inputMessage {
   font-size: 16px;
   width: 95%;
   height: 30px;
+}
+
+.submit {
+  width: 100px;
+  margin-left: 1rem;
+}
+
+.guide-message {
+  text-align: center;
 }
 
 </style>

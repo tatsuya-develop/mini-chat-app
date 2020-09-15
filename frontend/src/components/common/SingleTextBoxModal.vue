@@ -11,7 +11,7 @@
           <span>{{ error_message }}</span>
         </div>
         <div class="button-area">
-          <button v-on:click="submit()">{{ button_submit }}</button>
+          <button class="btn-primary" v-on:click="submit()">{{ button_submit }}</button>
           <button v-on:click="cancel(name)">{{ button_cancel }}</button>
         </div>
       </div>
@@ -32,11 +32,6 @@ export default {
     'parentSubmit': Function,
     'resetErrorMessage': Function,
   },
-  data () {
-    return {
-      button_cancel: Const.CANCEL,
-    };
-  },
   watch: {
     input_text: function() {
       this.resetErrorMessage();
@@ -51,6 +46,7 @@ export default {
         this.$emit('update:input_text', value);
       }
     },
+    button_cancel: () => Const.CANCEL,
   },
   methods: {
     submit: function() {
@@ -98,6 +94,5 @@ input {
 .button-area > button {
   width: 120px;
   margin: 0.5rem;
-  font-size: 18px;
 }
 </style>
