@@ -3,6 +3,7 @@ export default Object.freeze({
   BACKEND_ERROR: {
     CREATE: '登録処理に失敗しました',
     UPDATE: '更新処理に失敗しました',
+    DELETE: '削除処理に失敗しました',
   },
   // フロントエンドのエラーメッセージ
   FRONTEND_ERROR: {

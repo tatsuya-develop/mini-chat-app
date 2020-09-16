@@ -20,4 +20,6 @@ export default Object.freeze({
   UPDATE: '更新',
   EDIT: '編集',
   DELETE: 'チャットグループを削除する',
+  // 最大文字数
+  MAX_LENGTH_STRING: 255,
 });

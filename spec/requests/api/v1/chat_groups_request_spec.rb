@@ -5,7 +5,7 @@ RSpec.describe "ChatGroups", type: :request do
     context "全てのチャットグループ情報を取得" do
       it 'レスポンスコードが200であること' do 
         create_list(:chat_group, 10)
-        get '/api/v1/chat_groups'
+        get api_v1_chat_groups_path
 
         # リクエスト成功を表す200が返ってきたかを確認する。
         expect(response.status).to eq(200)
@@ -31,7 +31,7 @@ RSpec.describe "ChatGroups", type: :request do
         valid_params = { name: 'a' * 255 }
 
         # データが作成されていることを確認
-        expect { post api_v1_chat_groups_path, params: { chat_group: valid_params } }.to change(ChatGroup, :count).by(+1)
+        expect { post api_v1_chat_groups_path, params: { chat_group: valid_params } }.to change(ChatGroup, :count).by(+1) 
 
         # リクエスト成功を表す200が返ってきたかを確認する。
         expect(response.status).to eq(200)
@@ -46,6 +46,13 @@ RSpec.describe "ChatGroups", type: :request do
 
         # Bad Request を表す400が返ってきたかを確認する。
         expect(response.status).to eq(400)
+      end
+
+      it '500エラーを返すこと' do
+        post api_v1_chat_groups_path, params: {  }
+
+        # 500が返ってきたかを確認する。
+        expect(response.status).to eq(500)
       end
     end
   end
@@ -96,6 +103,15 @@ RSpec.describe "ChatGroups", type: :request do
         # Bad Request を表す400が返ってきたかを確認する。
         expect(response.status).to eq(400)
       end
+
+      it '500エラーを返すこと' do
+        current_chat_group = create(:chat_group, name: '新しいチャットグループ')
+
+        put api_v1_chat_group_path(current_chat_group.id), params: {  }
+
+        # 500が返ってきたかを確認する。
+        expect(response.status).to eq(500)
+      end
     end
   end
 
@@ -111,14 +127,26 @@ RSpec.describe "ChatGroups", type: :request do
       end
     end
 
+    context 'messagesテーブルのレコードが存在し、削除に成功する場合' do
+      it '削除対象のデータと200を返すこと' do
+        chat_group = create(:chat_group, name: '新しいチャットグループ（削除）')
+        message = chat_group.messages.build(attributes_for(:message))
+
+        # データが削除されていることを確認
+        expect { delete api_v1_chat_group_path(chat_group.id) }.to change(ChatGroup, :count).by(-1)
+
+        # リクエスト成功を表す200が返ってきたかを確認する。
+        expect(response.status).to eq(200)
+      end
+    end
+
     context '削除に失敗する場合' do
-      it 'エラーメッセージと500を返すこと' do
+      it 'エラーを返すこと' do
         chat_group = create(:chat_group, name: '新しいチャットグループ（削除）')
 
         # 生成したチャットグループのIDに +1 し、存在しないIDを引数に追加する。
         expect { delete api_v1_chat_group_path(chat_group.id + 1) }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
-    # TODO: messageテーブルと親子関係になっているため、message機能を実装したときにテストコードを追加する。（messageのレコードが存在する場合）
   end
 end
