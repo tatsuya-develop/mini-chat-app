@@ -11,36 +11,27 @@ module Api
       end
       
       def create
-        begin 
-          @chat_group = ChatGroup.new(chat_group_params)
-          if @chat_group.save
-            render json: @chat_group
-          else
-           response_bad_request(@chat_group.errors)
-          end
-        rescue => e
-          response_internal_server_error(e)
+        @chat_group = ChatGroup.new(chat_group_params)
+        if @chat_group.save
+          render json: @chat_group
+        else
+          response_bad_request(@chat_group.errors)
         end
       end
       
       def update
-        begin
-          if @chat_group.update(chat_group_params)
-            render json: @chat_group
-          else
-            response_bad_request(@chat_group.errors)
-          end
-        rescue => e
-          response_internal_server_error(e)
+        if @chat_group.update(chat_group_params)
+          render json: @chat_group
+        else
+          response_bad_request(@chat_group.errors)
         end
       end
 
       def destroy
-        begin
-          @chat_group.destroy
+        if @chat_group.destroy
           render json: @chat_group
-        rescue => e
-          response_internal_server_error(e)
+        else
+          response_internal_server_error(@chat_group.errors)
         end
       end
 

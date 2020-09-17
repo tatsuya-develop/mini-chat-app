@@ -179,7 +179,7 @@ export default {
         .catch((error) => {
           this.showModal(this.error_modal_name);
           this.backend_error_message = Common.GENERATE_LENTICULAR_BRACKET(Message.BACKEND_ERROR.UPDATE);
-          this.backend_error_message_detail = error.response.data.message;
+          this.backend_error_message_detail = error.response.status === 400 ? error.response.data.message : Message.BACKEND_ERROR.INTERNAL_SERVER_ERROR;
           console.error(error.response.data);
         });
     },

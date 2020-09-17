@@ -6,18 +6,13 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
+chat_groups = [];
+
 3.times do |n|
-  ChatGroup.create!(
-    name: "テストチャットグループ#{n +  1}"
-  )
-  chat_groups = ChatGroup.all
+  chat_group = ChatGroup.create!(name: "テストチャットグループ#{n +  1}")
+  chat_groups.push(chat_group)
+end
   
-  for chat_group in chat_groups do
-    3.times do |i|
-      Message.create!(
-        chat_group_id: chat_group.id,
-        body: "テストメッセージ#{i + 1}"
-      )
-    end
-  end
+chat_groups.each do |chat_group|
+  3.times { |i| chat_group.messages.create!(body: "テストメッセージ#{i + 1}") }
 end
