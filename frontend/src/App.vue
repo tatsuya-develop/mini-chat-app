@@ -84,6 +84,7 @@ export default {
 html {
   height: 100%;
   width: 100%;
+  min-height: 720px;
   background:linear-gradient(90deg,gray 0%,gray 20%,white 20%,white 100%);
 }
 
@@ -116,5 +117,12 @@ button {
   background: green;
   color: white;
   border: none;
+}
+
+.btn-healthy:disabled {
+  background: gray;
+  color: white;
+  border: none;
+  cursor: not-allowed;
 }
 </style>

@@ -5,6 +5,9 @@ Rails.application.routes.draw do
   namespace :api, { format: "json" } do
     namespace :v1 do
       resources :chat_groups, only: %i[index create update destroy]
+      resources :messages, only: %i[show create]
     end
   end
+
+  mount ActionCable.server => 'cable'
 end

@@ -23,15 +23,22 @@
           {{ delete_link }}
         </div>
       </div>
-      <div class="chatMain">
-        <p>メッセージ1</p>
-        <p>メッセージ2</p>
-        <p>メッセージ3</p>
-        <p>メッセージ4</p> 
+      <div class="chatMain" id="messageArea">
+        <p v-for="message in messages" :key="message.id">
+          {{ message.body }}
+        </p>
       </div>
       <div class="chatBottom">
-        <input type="text" class="inputMessage">
-        <button class="submit btn-healthy">{{ submit_button }}</button>
+        <input 
+          type="text" 
+          class="inputMessage" 
+          v-model="input_message" 
+          placeholder="入力してください..."
+          v-bind:maxlength="max_length_string"
+          @keypress.prevent.enter.exact="enableEnterMessageSubmit()" 
+          @keyup.prevent.enter.exact="enterMessageSubmit()"
+        >
+        <button class="submit btn-healthy" v-if="message_channel" v-on:click="sendMessage()" v-bind:disabled="is_disabled">{{ submit_button }}</button>
       </div>
       <single-text-box-modal
         :name="edit_modal_name" 
@@ -62,9 +69,9 @@
 
 <script>
 import axios from 'axios';
+import _ from 'lodash';
 import Const from '../config/const.js';
 import Message from '../config/message.js';
-import _ from 'lodash';
 import SingleTextBoxModal from './common/SingleTextBoxModal.vue';
 import OkModal from './common/OkModal.vue';
 import YesNoModal from './common/YesNoModal.vue';
@@ -84,15 +91,38 @@ export default {
   watch: {
     selected_chat_group: function(current) {
       this.input_text = current ? current.name : '';
+      if (current) {
+        this.getMessage();
+      }
     },
+    messages: function() {
+      // DOM生成が完了したあとに実行
+      this.$nextTick(() => {
+        // スクロールが発生しても、常に最新のメッセージが見れるようにする
+        const target = document.getElementById('messageArea');
+        if (target) {
+          target.scrollTop = target.scrollHeight;
+        }
+      });
+    },
+    input_message: function(current) {
+      // メッセージが、空白または最大文字数を超えている場合は、ボタンを非活性にする
+      const maxLength = 255;
+      this.is_disabled = !current || current.length > this.get_max_length;
+    }
   },
   data() {
     return {
       frontend_error_message: '',
       chat_group: [],
       input_text: '',
+      input_message: '',
+      backend_error_message: '',
       backend_error_message_detail: '',
-      message: '',
+      messages: [],
+      message_channel: null,
+      is_disabled: true,
+      is_can_send_message: false,
     };
   },
   computed: {
@@ -108,7 +138,6 @@ export default {
     edit_modal_title: () => Const.EDIT_CHAT_GROUP_MODAL_TITLE,
     delete_modal_name: () => Const.DELETE_CHAT_GROUP_MODAL_NAME,
     error_modal_name: () => Const.CHAT_CONTAINER_ERROR_MODAL_NAME,
-    backend_error_message: () => Common.GENERATE_LENTICULAR_BRACKET(Message.BACKEND_ERROR.UPDATE),
     delete_confirm_message: () => Message.DELETE_CONFIRM_MESSAGE,
     submit_button: () => Const.SUBMIT,
     edit_link: () => Const.EDIT,
@@ -116,6 +145,18 @@ export default {
     single_text_box_modal_button: () => Const.UPDATE,
     please_select_chat_group_message: () => Message.PLEASE_SELECT_CHAT_GROUP_MESSAGE,
     please_create_chat_group_message: () => Message.PLEASE_CREATE_CHAT_GROUP_MESSAGE,
+    max_length_string: () => Const.MAX_LENGTH_STRING,
+  },
+  created: function() {
+    this.message_channel = this.$cable.subscriptions.create(
+      { channel: 'MessageChannel' }, 
+      {
+        received: (data) => {
+          this.messages.push(data.message);
+          this.input_message = '';
+        }
+      }
+    )
   },
   methods: {
     // チャットグループの更新
@@ -137,7 +178,8 @@ export default {
         })
         .catch((error) => {
           this.showModal(this.error_modal_name);
-          this.backend_error_message_detail = error.response.data.message;
+          this.backend_error_message = Common.GENERATE_LENTICULAR_BRACKET(Message.BACKEND_ERROR.UPDATE);
+          this.backend_error_message_detail = error.response.status === 400 ? error.response.data.message : Message.BACKEND_ERROR.INTERNAL_SERVER_ERROR;
           console.error(error.response.data);
         });
     },
@@ -149,10 +191,39 @@ export default {
           this.$modal.hide(this.delete_modal_name);
         })
         .catch((error) => {
+          this.hideModal(this.delete_modal_name);
           this.showModal(this.error_modal_name);
+          this.backend_error_message = Common.GENERATE_LENTICULAR_BRACKET(Message.BACKEND_ERROR.DELETE);
           this.backend_error_message_detail = error.response.data.message;
           console.error(error.response.data);
         });
+    },
+    // メッセージ受信機能
+    getMessage: function() {
+      axios.get(Const.API_URL + `messages/${this.selected_chat_group.id}`)
+        .then((response) => {
+          this.messages = response.data;
+        })
+        .catch((error) => {
+          console.log(error.response.data);
+        });
+    },
+    // メッセージ送信機能
+    sendMessage: function() {
+      this.message_channel.perform('send_message', {
+        message: this.input_message,
+        chat_group_id: this.selected_chat_group.id
+      });
+    },
+    // Enterでメッセージが送信できる状態にする
+    enterMessageSubmit: function() {
+      this.is_can_send_message = true;
+    },
+    // Enterでメッセージが送信できるかを判定
+    enableEnterMessageSubmit: function() {
+      if (!this.is_can_send_message) return;
+      this.sendMessage();
+      this.is_can_send_message = false;
     },
     // モーダルオープン時の処理
     showModal: function(target_modal_name) {
@@ -198,6 +269,13 @@ export default {
   border-bottom-width: thin;
   border-bottom-style: solid;
   padding-bottom: 1rem;
+}
+
+.chatMain {
+  position: absolute;
+  overflow: auto;
+  height: 82%;
+  width: 95%;
 }
 
 .groupAlia {
